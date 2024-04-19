@@ -4,7 +4,7 @@ import pathlib
 import textwrap
 
 
-genai.configure(api_key='AIzaSyCkDIG7zfXvJf_AJ1D3xl0n1uGjOqPrYvQ')
+genai.configure(api_key='#########################')
 
 def to_markdown(text):
   text = text.replace('•', '  *')
