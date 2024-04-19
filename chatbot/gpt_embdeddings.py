@@ -2,7 +2,7 @@
 import openai  
 import pandas as pd  
 
-openai.api_key = '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'
+openai.api_key = '########################'
 
 df = pd.read_csv("GPT4_part_final.csv")
 def openai_embedding(text):
