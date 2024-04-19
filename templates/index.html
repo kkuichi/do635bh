@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Conversation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .output {
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 10px;
+            overflow: hidden;
+        }
+        #output-model-a {
+            border: 2px solid #228B22; /* Dark Green */
+        }
+        #output-model-b {
+            border: 2px solid #800080; /* Dark Purple */
+        }
+        h2 {
+            margin-top: 0;
+        }
+        #model-a-output, #model-b-output {
+            margin-top: 10px;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        #user_input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #333;
+            color: #ffffff;
+        }
+        #chat-form input[type="submit"] {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #chat-form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-bottom: 20px;
+        }
+        #feedback-form select, #feedback-form textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #333;
+            color: #ffffff;
+        }
+        .form-container {
+            max-width: 755px;
+            width: 100%;
+            padding: 20px;
+            background-color: #333333;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+        }
+        .form-container h2 {
+            font-size: 1.2rem;
+            margin-top: 0;
+            color: #ffffff;
+        }
+        .form-container label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #ffffff;
+        }
+        .form-container label input[type="radio"] {
+            margin-right: 5px;
+        }
+        .form-container input[type="radio"], .form-container select, .form-container textarea {
+            margin-bottom: 10px;
+            display: block;
+        }
+        .form-container input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .form-container input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .loading-indicator {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .form-container {
+                padding: 10px;
+            }
+            .form-container h2 {
+                font-size: 1rem;
+            }
+            .form-container label {
+                font-size: 0.8rem;
+            }
+            .form-container input[type="submit"] {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>Dobrý deň študenti,</p>
+        <p>Momentálne testujeme chatbota, ktorý dokáže odpovedať na otázky týkajúce sa Technickej univerzity v Košiciach. Je dôležité poznamenať, že tento bot nie je schopný odpovedať na všetky otázky. Prosíme, aby ste sa pýtali ohľadom štúdia na Hospodárskej informatike.</p>
+        <p>Predmety, na ktoré je možné sa opýtať:</p>
+        <p>     Objavovanie znalostí</p>
+        <p>     Technológie spracovania veľkých dát</p>
+        <p>     Pokročilé metódy analýzy dát</p>
+        <p>     Podniková analytika</p>
+        <p>     Aplikácie webových technológií</p>
+        <p>Otázky môžu byť typu "Kto je cvičiaci?", "Opíš predmet." alebo "Aký je rozsah?" atď.</p>
+        <p>V priebehu interakcie môže nastať situácia, že model odpovie správou, že nemá požadované informácie. Na testovanie chatbota máte k dispozícii 4 otázky.</p>
+        <p>Toto testovanie chatbota slúži na zachytenie kvalitatívnych vlastností LLM modelov.</p>
+        <h1>FEI TUKE Chatbot </h1>
+        <form id="chat-form">
+            <label for="user_input">Váš dotaz:</label><br>
+            <input type="text" id="user_input" name="user_input" placeholder="Type your message here"><br>
+            <input type="submit" value="Send">
+        </form>
+        
+        <div class="output" id="output-model-a">
+            <div class="loading-indicator">Generujem odpoved...</div>
+            <h2>Výstup modelu A:</h2>
+            <div id="model-a-output"></div>
+            
+        </div>
+        <div class="output" id="output-model-b">
+            <div class="loading-indicator">Generujem odpoved...</div>
+            <h2>Výstup modelu B:</h2>
+            <div id="model-b-output"></div>
+            
+        </div>
+    
+    
+        <div class="form-container">
+            <form id="feedback-form" action="/submit_feedback" method="post">
+                <h2>Odpovede na otázky o kvalitatívnych vlastnostiach LLM modelu pre model A:</h2>
+                <label>1. Ako by ste popísali svoju celkovú spokojnosť s používaním tohto modelu na generovanie textu?</label><br>
+                <label><input type="radio" name="quality_a_1" value="Veľmi dobrá" required>Veľmi dobrá</label>
+                <label><input type="radio" name="quality_a_1" value="Dobrá"> Dobrá</label>
+                <label><input type="radio" name="quality_a_1" value="Priemerná"> Priemerná</label>
+                <label><input type="radio" name="quality_a_1" value="Zlá"> Zlá</label>
+                <label><input type="radio" name="quality_a_1" value="Veľmi zlá"> Veľmi zlá</label><br>
+
+                <label>2. Ako by ste ohodnotili gramatickú správnosť a plynulosť výstupov modelu?</label><br>
+                <label><input type="radio" name="quality_a_2" value="Veľmi dobrá" required> Veľmi dobrá</label>
+                <label><input type="radio" name="quality_a_2" value="Dobrá"> Dobrá</label>
+                <label><input type="radio" name="quality_a_2" value="Priemerná"> Priemerná</label>
+                <label><input type="radio" name="quality_a_2" value="Zlá"> Zlá</label>
+                <label><input type="radio" name="quality_a_2" value="Veľmi zlá"> Veľmi zlá</label><br>
+
+                <label>3. Sú výstupy modelu informatívne a zrozumiteľné? Ako by ste ich ohodnotili z hľadiska zmysluplnosti?</label><br>
+                <label><input type="radio" name="usability_a_3" value="Veľmi zrozumiteľné"required> Veľmi zrozumiteľné</label>
+                <label><input type="radio" name="usability_a_3" value="dostacujuco zrozumiteľné"> dostacujuco zrozumiteľné</label>
+                <label><input type="radio" name="usability_a_3" value="Priemerné"> Priemerné</label>
+                <label><input type="radio" name="usability_a_3" value="nezrozumitelne"> nezrozumitelne</label>
+                <label><input type="radio" name="usability_a_3" value="Veľmi nezrozumitelne"> Veľmi nezrozumitelne</label><br>
+
+                <label>4.Ako by ste zhodnotili schopnosť modelu generovať relevantné odpovede na základe vašich vstupných otázok alebo informácií?</label><br>
+                <label><input type="radio" name="quality_a_4" value="Veľmi dobrá"required> Veľmi dobrá</label>
+                <label><input type="radio" name="quality_a_4" value="Dobrá"> Dobrá</label>
+                <label><input type="radio" name="quality_a_4" value="Priemerná"> Priemerná</label>
+                <label><input type="radio" name="quality_a_4" value="Zlá"> Zlá</label>
+                <label><input type="radio" name="quality_a_4" value="Veľmi zlá"> Veľmi zlá</label><br>
+
+                <label>5. Ako jednoduché je porozumenie vystupov modelu?</label><br>
+                <label><input type="radio" name="usability_a_5" value="Veľmi jednoduché"required> Veľmi jednoduché</label>
+                <label><input type="radio" name="usability_a_5" value="Jednoduché"> Jednoduché</label>
+                <label><input type="radio" name="usability_a_5" value="Priemerné"> Priemerné</label>
+                <label><input type="radio" name="usability_a_5" value="Náročné"> Náročné</label>
+                <label><input type="radio" name="usability_a_5" value="Veľmi náročné"> Veľmi náročné</label><br>
+
+                <label>6. Akú mieru dôveryhodnosti priradíte výstupom modelu na základe ich relevancie k vašim potrebám alebo otázke?</label><br>
+                <label><input type="radio" name="quality_a_6" value="Veľmi dobrá"required> Veľmi dobrá</label>
+                <label><input type="radio" name="quality_a_6" value="Dobrá"> Dobrá</label>
+                <label><input type="radio" name="quality_a_6" value="Priemerná"> Priemerná</label>
+                <label><input type="radio" name="quality_a_6" value="Zlá"> Zlá</label>
+                <label><input type="radio" name="quality_a_6" value="Veľmi zlá"> Veľmi zlá</label><br>
+
+                <h2>Odpovede na otázky o kvalitatívnych vlastnostiach LLM modelu pre model B:</h2>
+                <label>1. Ako by ste popísali svoju celkovú spokojnosť s používaním tohto modelu na generovanie textu?</label><br>
+                <label><input type="radio" name="quality_b_1" value="Veľmi dobrá"required> Veľmi dobrá</label>
+                <label><input type="radio" name="quality_b_1" value="Dobrá"> Dobrá</label>
+                <label><input type="radio" name="quality_b_1" value="Priemerná"> Priemerná</label>
+                <label><input type="radio" name="quality_b_1" value="Zlá"> Zlá</label>
+                <label><input type="radio" name="quality_b_1" value="Veľmi zlá"> Veľmi zlá</label><br>
+
+                <label>2. Ako by ste ohodnotili gramatickú správnosť a plynulosť výstupov modelu?</label><br>
+                <label><input type="radio" name="quality_b_2" value="Veľmi dobrá"required> Veľmi dobrá</label>
+                <label><input type="radio" name="quality_b_2" value="Dobrá"> Dobrá</label>
+                <label><input type="radio" name="quality_b_2" value="Priemerná"> Priemerná</label>
+                <label><input type="radio" name="quality_b_2" value="Zlá"> Zlá</label>
+                <label><input type="radio" name="quality_b_2" value="Veľmi zlá"> Veľmi zlá</label><br>
+
+                <label>3. Sú výstupy modelu informatívne a zrozumiteľné? Ako by ste ich ohodnotili z hľadiska zmysluplnosti?</label><br>
+                <label><input type="radio" name="usability_b_3" value="Veľmi zrozumiteľné"required> Veľmi zrozumiteľné</label>
+                <label><input type="radio" name="usability_b_3" value="dostacujuco zrozumiteľné"> dostacujuco zrozumiteľné</label>
+                <label><input type="radio" name="usability_b_3" value="Priemerné"> Priemerné</label>
+                <label><input type="radio" name="usability_b_3" value="nezrozumitelne"> nezrozumitelne</label>
+                <label><input type="radio" name="usability_b_3" value="Veľmi nezrozumitelne"> Veľmi nezrozumitelne</label><br>
+
+                <label>4.Ako by ste zhodnotili schopnosť modelu generovať relevantné odpovede na základe vašich vstupných otázok alebo informácií?</label><br>
+                <label><input type="radio" name="quality_b_4" value="Veľmi dobrá"required> Veľmi dobrá</label>
+                <label><input type="radio" name="quality_b_4" value="Dobrá"> Dobrá</label>
+                <label><input type="radio" name="quality_b_4" value="Priemerná"> Priemerná</label>
+                <label><input type="radio" name="quality_b_4" value="Zlá"> Zlá</label>
+                <label><input type="radio" name="quality_b_4" value="Veľmi zlá"> Veľmi zlá</label><br>
+
+                <label>5. Ako jednoduché je porozumenie vystupov modelu?</label><br>
+                <label><input type="radio" name="usability_b_5" value="Veľmi jednoduché"required> Veľmi jednoduché</label>
+                <label><input type="radio" name="usability_b_5" value="Jednoduché"> Jednoduché</label>
+                <label><input type="radio" name="usability_b_5" value="Priemerné"> Priemerné</label>
+                <label><input type="radio" name="usability_b_5" value="Náročné"> Náročné</label>
+                <label><input type="radio" name="usability_b_5" value="Veľmi náročné"> Veľmi náročné</label><br>
+
+                <label>6. Akú mieru dôveryhodnosti priradíte výstupom modelu na základe ich relevancie k vašim potrebám alebo otázke?</label><br>
+                <label><input type="radio" name="quality_b_6" value="Veľmi dobrá"required> Veľmi dobrá</label>
+                <label><input type="radio" name="quality_b_6" value="Dobrá"> Dobrá</label>
+                <label><input type="radio" name="quality_b_6" value="Priemerná"> Priemerná</label>
+                <label><input type="radio" name="quality_b_6" value="Zlá"> Zlá</label>
+                <label><input type="radio" name="quality_b_6" value="Veľmi zlá"> Veľmi zlá</label><br>
+
+                <!-- Add more questions as needed -->
+                <h2>Vyber prosim model ktory lepsie odpovedal</h2>
+                <label>1. S ktorym modelom a jeho vystupmy ste boli spokojnejsi?</label><br>
+                <label><input type="radio" name="choice" value="Model A" required> Model A</label>
+                <label><input type="radio" name="choice" value="Model B"> Model B</label><br>
+
+                <label>2. Ktory model produkoval gramaticky správny a  plynulejši výstup?</label><br>
+                <label><input type="radio" name="choice2" value="Model A" required> Model A</label>
+                <label><input type="radio" name="choice2" value="Model B"> Model B</label><br>
+
+                <label>3. Ktory model produkoval zmysluplnejší výstup?</label><br>
+                <label><input type="radio" name="choice3" value="Model A" required> Model A</label>
+                <label><input type="radio" name="choice3" value="Model B"> Model B</label><br>
+
+                <label>4. Ktorý model produkoval relevantnejšie odpovode na Váš vstup?</label><br>
+                <label><input type="radio" name="choice4" value="Model A" required> Model A</label>
+                <label><input type="radio" name="choice4" value="Model B"> Model B</label><br>
+
+                <label>5. Ktorý model mal jednoduchší výstup na pochopenie?</label><br>
+                <label><input type="radio" name="choice5" value="Model A" required> Model A</label>
+                <label><input type="radio" name="choice5" value="Model B"> Model B</label><br>
+
+                <label>6. Ktorý model produkoval dôverihodnejší výstup?</label><br>
+                <label><input type="radio" name="choice6" value="Model A" required> Model A</label>
+                <label><input type="radio" name="choice6" value="Model B"> Model B</label><br>
+
+                <label for="satisfaction">Aké je Vaše celkové hodnotenie spokojnosti s modelom?</label><br>
+                <select id="satisfaction" name="satisfaction" >
+                    <option value="Veľmi spokojný/spokojná">Veľmi spokojný/spokojná</option>
+                    <option value="Spokojný/spokojná">Spokojný/spokojná</option>
+                    <option value="Priemer">Priemer</option>
+                    <option value="Nespokojný/nespokojná">Nespokojný/nespokojná</option>
+                    <option value="Veľmi nespokojný/nespokojná">Veľmi nespokojný/nespokojná</option>
+                </select><br>
+
+                <label for="feedback">Ak máte nejaký dodatočný komentár alebo spätnú väzbu, napíšte ju sem:</label><br>
+                <textarea id="feedback" name="feedback" rows="4" cols="50"></textarea><br>
+
+                <input type="submit" value="Odoslať">
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            var userInput = document.getElementById('user_input').value;
+
+            var outputA = document.getElementById('output-model-a');
+            var outputB = document.getElementById('output-model-b');
+
+            var loadingA = outputA.querySelector('.loading-indicator');
+            var loadingB = outputB.querySelector('.loading-indicator');
+
+            loadingA.style.display = 'block';
+            loadingB.style.display = 'block';
+
+            var response = await fetch('/get_gpt_response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'user_input=' + userInput
+            });
+
+            var data = await response.json();
+
+            document.getElementById('model-a-output').innerText = data.chat_response_a;
+            document.getElementById('model-b-output').innerText = data.chat_response_b;
+
+            loadingA.style.display = 'none';
+            loadingB.style.display = 'none';
+        });
+
+        // Function to handle the three messages only visualization
+        function handleThreeMessages() {
+            var outputs = document.querySelectorAll('.output');
+            var count = 0;
+            outputs.forEach(function(output) {
+                var messages = output.querySelectorAll('.message');
+                if (messages.length > 4) {
+                    for (var i = 0; i < messages.length - 4; i++) {
+                        messages[i].style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Call the function when the page loads
+        window.addEventListener('load', handleThreeMessages);
+    </script>
+</body>
+</html>
